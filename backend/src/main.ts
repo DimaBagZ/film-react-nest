@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import 'dotenv/config';
@@ -14,6 +15,20 @@ async function bootstrap() {
 
   // Включение CORS
   app.enableCors();
+
+  // Глобальная валидация входящих данных (временно смягчена для отладки)
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // Удаляет свойства, не определенные в DTO
+      forbidNonWhitelisted: false, // Временно отключено для отладки
+      transform: true, // Автоматически преобразует типы
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+      errorHttpStatusCode: 422, // HTTP статус для ошибок валидации
+      skipMissingProperties: true, // Пропускает отсутствующие свойства
+    }),
+  );
 
   // Глобальный фильтр исключений
   app.useGlobalFilters(new HttpExceptionFilter());
