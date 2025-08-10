@@ -4,6 +4,7 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { Response } from 'express';
 
@@ -20,33 +21,64 @@ export class HttpExceptionFilter implements ExceptionFilter {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
 
-      // Форматируем ошибку в понятном виде для фронтенда
-      if (
-        typeof exceptionResponse === 'object' &&
-        'message' in exceptionResponse
-      ) {
-        // Если это массив сообщений (например, от валидации), берем первое
-        const errorMessage = Array.isArray(exceptionResponse.message)
-          ? exceptionResponse.message[0]
-          : exceptionResponse.message;
+      // Специальная обработка ошибок валидации
+      if (exception instanceof BadRequestException && status === 422) {
+        const validationErrors = exceptionResponse as any;
 
-        message = {
-          statusCode: status,
-          message: errorMessage,
-          error: 'Bad Request',
-        };
-      } else if (typeof exceptionResponse === 'string') {
-        message = {
-          statusCode: status,
-          message: exceptionResponse,
-          error: 'Bad Request',
-        };
+        if (
+          validationErrors.message &&
+          Array.isArray(validationErrors.message)
+        ) {
+          // Формируем понятное сообщение об ошибке валидации
+          const errorMessages = validationErrors.message.map(
+            (error: string) => {
+              // Убираем технические детали и оставляем понятное сообщение
+              return error.replace(/^[^:]+: /, '');
+            },
+          );
+
+          message = {
+            statusCode: status,
+            message: errorMessages.join('. '),
+            error: 'Validation Error',
+            details: validationErrors.message,
+          };
+        } else {
+          message = {
+            statusCode: status,
+            message: 'Ошибка валидации данных',
+            error: 'Validation Error',
+          };
+        }
       } else {
-        message = {
-          statusCode: status,
-          message: exception.message,
-          error: exceptionResponse,
-        };
+        // Форматируем ошибку в понятном виде для фронтенда
+        if (
+          typeof exceptionResponse === 'object' &&
+          'message' in exceptionResponse
+        ) {
+          // Если это массив сообщений (например, от валидации), берем первое
+          const errorMessage = Array.isArray(exceptionResponse.message)
+            ? exceptionResponse.message[0]
+            : exceptionResponse.message;
+
+          message = {
+            statusCode: status,
+            message: errorMessage,
+            error: 'Bad Request',
+          };
+        } else if (typeof exceptionResponse === 'string') {
+          message = {
+            statusCode: status,
+            message: exceptionResponse,
+            error: 'Bad Request',
+          };
+        } else {
+          message = {
+            statusCode: status,
+            message: exception.message,
+            error: exceptionResponse,
+          };
+        }
       }
     } else {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
