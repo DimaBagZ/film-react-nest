@@ -12,13 +12,26 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.setGlobalPrefix('api/afisha', {
+      exclude: ['content/afisha/(.*)', '/'],
+    });
+    app.enableCors();
     await app.init();
+  });
+
+  afterEach(async () => {
+    await app.close();
   });
 
   it('/ (GET)', () => {
     return request(app.getHttpServer())
       .get('/')
       .expect(200)
-      .expect('Hello World!');
+      .expect((res) => {
+        expect(res.body).toHaveProperty('status', 'ok');
+        expect(res.body).toHaveProperty('message', 'Film! API сервер запущен');
+        expect(res.body).toHaveProperty('timestamp');
+        expect(typeof res.body.timestamp).toBe('string');
+      });
   });
 });

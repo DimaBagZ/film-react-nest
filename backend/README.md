@@ -1,73 +1,351 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Film! Backend API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Бэкенд-часть проекта Film! - онлайн-сервиса бронирования билетов в кинотеатр.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Описание
 
-## Description
+Проект реализован на Nest.js с использованием MongoDB для хранения данных. API предоставляет следующие эндпоинты:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- `GET /` - проверка статуса сервера
+- `GET /api/afisha/films/` - получение списка фильмов
+- `GET /api/afisha/films/:id/schedule` - получение расписания конкретного фильма
+- `POST /api/afisha/order` - создание заказа на бронирование билетов
+- `GET /content/afisha/*` - раздача статического контента
+- `GET /api/docs` - Swagger документация API
 
-## Installation
+## Swagger документация
 
-```bash
-$ npm install
+API имеет интерактивную документацию, доступную по адресу:
+
+```
+http://localhost:3000/api/docs
 ```
 
-## Running the app
+Swagger UI позволяет:
+
+- Просматривать все доступные эндпоинты
+- Тестировать API прямо из браузера
+- Изучать структуру запросов и ответов
+- Видеть схемы данных (DTO)
+
+## Установка и запуск
+
+### Предварительные требования
+
+- Node.js (версия 16 или выше)
+- MongoDB (локально или в облаке)
+
+### Установка зависимостей
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm install
 ```
 
-## Test
+### Настройка переменных окружения
+
+Скопируйте файл `.env.example` в `.env` и настройте переменные
+
+### Запуск в режиме разработки
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm run start:dev
 ```
 
-## Support
+### Сборка для продакшена
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+npm run build
+npm run start:prod
+```
 
-## Stay in touch
+## Структура проекта
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Модули приложения
 
-## License
+#### Films Module (`src/films/`)
 
-Nest is [MIT licensed](LICENSE).
+Основной модуль для работы с фильмами и расписанием сеансов.
+
+**Компоненты:**
+
+- **DTO классы** (`dto/films.dto.ts`) - типизированные объекты для передачи данных
+- **HTTP контроллер** (`films.controller.ts`) - обработка HTTP запросов
+- **Бизнес-логика** (`films.service.ts`) - основная логика работы с фильмами
+- **Модуль** (`films.module.ts`) - конфигурация модуля
+
+#### Order Module (`src/order/`)
+
+Модуль для обработки заказов и бронирования билетов.
+
+**Компоненты:**
+
+- **DTO классы** (`dto/order.dto.ts`) - структуры данных для заказов
+- **HTTP контроллер** (`order.controller.ts`) - API эндпоинты заказов
+- **Бизнес-логика** (`order.service.ts`) - валидация и обработка заказов
+- **Модуль** (`order.module.ts`) - конфигурация модуля
+
+#### Static Module (`src/static/`)
+
+Модуль для раздачи статических файлов (изображения, CSS, JS).
+
+**Компоненты:**
+
+- **Контроллер** (`static.controller.ts`) - обработка запросов к статическим файлам
+- **Модуль** (`static.module.ts`) - конфигурация статического сервера
+
+### Repository Layer (`src/repository/`)
+
+Слой абстракции для работы с данными, реализующий паттерн Repository.
+
+**Компоненты:**
+
+- **Интерфейс** (`films.repository.interface.ts`) - контракт для репозитория
+- **In-Memory реализация** (`films.in-memory.repository.ts`) - данные в памяти для тестирования
+- **MongoDB реализация** (`films.mongo.repository.ts`) - работа с MongoDB
+- **Провайдер** (`films.repository.provider.ts`) - выбор реализации на основе конфигурации
+
+### Common Components (`src/common/`)
+
+Общие компоненты, используемые во всем приложении.
+
+**Компоненты:**
+
+- **Фильтры исключений** (`filters/http-exception.filter.ts`) - глобальная обработка ошибок
+
+### Конфигурация и точка входа
+
+**Основные файлы:**
+
+- **Конфигурация** (`app.config.provider.ts`) - провайдер настроек приложения
+- **Главный модуль** (`app.module.ts`) - корневой модуль приложения
+- **Точка входа** (`main.ts`) - запуск приложения и глобальные настройки
+
+## Архитектура и особенности реализации
+
+### Repository Pattern
+
+Проект использует паттерн Repository для абстракции доступа к данным:
+
+- **`IFilmsRepository`** - интерфейс репозитория
+- **`FilmsInMemoryRepository`** - реализация с данными в памяти (для тестирования)
+- **`FilmsMongoRepository`** - реализация с MongoDB
+- **`FilmsRepositoryProvider`** - провайдер для выбора реализации
+
+Переключение между реализациями происходит через переменную окружения `USE_IN_MEMORY_REPOSITORY`.
+
+### Глобальные настройки
+
+- **Глобальный префикс**: `api/afisha` (исключения: `/`, `content/afisha/*`)
+- **CORS**: включен для всех источников
+- **Глобальный фильтр исключений**: стандартизированные ошибки API
+- **Swagger**: автоматическая генерация документации
+
+### Валидация и обработка ошибок
+
+- **DTO валидация**: автоматическая валидация входящих данных
+- **Бизнес-логика**: проверка занятости мест, валидация заказов
+- **Стандартизированные ошибки**: единый формат ответов об ошибках
+
+## API Endpoints
+
+### Проверка статуса сервера
+
+```http
+GET /
+```
+
+**Ответ:**
+
+```json
+{
+  "status": "ok",
+  "message": "Film! API сервер запущен",
+  "timestamp": "2024-08-07T02:48:36.861Z"
+}
+```
+
+### Получение списка фильмов
+
+```http
+GET /api/afisha/films/
+```
+
+**Ответ:**
+
+```json
+{
+  "total": 2,
+  "items": [
+    {
+      "id": "film-id",
+      "rating": 8.5,
+      "director": "Режиссер",
+      "tags": ["Драма"],
+      "title": "Название фильма",
+      "about": "Краткое описание",
+      "description": "Полное описание",
+      "image": "/bg1s.jpg",
+      "cover": "/bg1c.jpg"
+    }
+  ]
+}
+```
+
+### Получение расписания фильма
+
+```http
+GET /api/afisha/films/:id/schedule
+```
+
+**Ответ:**
+
+```json
+{
+  "total": 3,
+  "items": [
+    {
+      "id": "session-id",
+      "daytime": "2024-06-28T10:00:00+03:00",
+      "hall": 1,
+      "rows": 5,
+      "seats": 10,
+      "price": 350,
+      "taken": ["1:2", "3:5"]
+    }
+  ]
+}
+```
+
+### Создание заказа
+
+```http
+POST /api/afisha/order
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "phone": "+7 (999) 123-45-67",
+  "tickets": [
+    {
+      "film": "film-id",
+      "session": "session-id",
+      "row": 1,
+      "seat": 1,
+      "price": 350
+    }
+  ]
+}
+```
+
+**Ответ:**
+
+```json
+{
+  "total": 1,
+  "items": [
+    {
+      "film": "film-id",
+      "session": "session-id",
+      "daytime": "2024-06-28T10:00:00+03:00",
+      "day": "28.06.2024",
+      "time": "10:00",
+      "row": 1,
+      "seat": 1,
+      "price": 350
+    }
+  ]
+}
+```
+
+### Статические файлы
+
+```http
+GET /content/afisha/bg1c.jpg
+```
+
+Сервит изображения и другие статические файлы из папки `public/content/afisha/`.
+
+## База данных
+
+Проект использует MongoDB для хранения данных о фильмах и сеансах. Структура коллекции `films`:
+
+```json
+{
+  "id": "film-id",
+  "rating": 8.5,
+  "director": "Режиссер",
+  "tags": ["Драма"],
+  "title": "Название фильма",
+  "about": "Краткое описание",
+  "description": "Полное описание",
+  "image": "/bg1s.jpg",
+  "cover": "/bg1c.jpg",
+  "schedule": [
+    {
+      "id": "session-id",
+      "daytime": "2024-06-28T10:00:00+03:00",
+      "hall": 1,
+      "rows": 5,
+      "seats": 10,
+      "price": 350,
+      "taken": ["1:2", "3:5"]
+    }
+  ]
+}
+```
+
+## Заполнение базы данных
+
+Для заполнения базы данных начальными данными используйте файл `test/mongodb_initial_stub.json`. Импортируйте данные в MongoDB с помощью MongoDB Compass или командной строки.
+
+## Разработка
+
+### Линтинг
+
+```bash
+npm run lint
+```
+
+### Тестирование
+
+```bash
+# Unit тесты
+npm run test
+
+# E2E тесты
+npm run test:e2e
+```
+
+### Сборка
+
+```bash
+npm run build
+```
+
+## Особенности реализации
+
+### Безопасность и валидация
+
+- **Валидация мест**: Система проверяет, что места не заняты перед бронированием
+- **Формат занятых мест**: Места сохраняются в формате `${row}:${seat}`
+- **DTO валидация**: Автоматическая проверка входящих данных
+- **Глобальный фильтр исключений**: Стандартизированные ошибки API
+
+### Производительность
+
+- **Repository Pattern**: Абстракция доступа к данным
+- **In-Memory режим**: Быстрое тестирование без базы данных
+- **Статический контент**: Оптимизированная раздача файлов
+
+### Разработка и отладка
+
+- **Swagger документация**: Интерактивная документация API
+- **Логирование**: Подробные логи для отладки
+- **CORS**: Настроен для разработки
+- **TypeScript**: Полная типизация кода
+
+### Интеграция с фронтендом
+
+- **Совместимость DTO**: Структуры данных соответствуют ожиданиям фронтенда
+- **Формат ответов**: API возвращает данные в формате, ожидаемом фронтендом
+- **Обработка ошибок**: JSON ошибки для отладки в консоли браузера
