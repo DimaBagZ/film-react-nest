@@ -10,9 +10,6 @@ COPY package*.json ./
 # Устанавливаем зависимости (включая dev dependencies для сборки)
 RUN npm ci
 
-# Устанавливаем недостающий пакет для rollup в Alpine Linux
-RUN npm install @rollup/rollup-linux-x64-musl
-
 # Копируем исходный код
 COPY . .
 
