@@ -1,5 +1,5 @@
 # Этап сборки
-FROM node:18-alpine AS builder
+FROM node:18 AS builder
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
@@ -10,10 +10,6 @@ COPY package*.json ./
 # Устанавливаем зависимости (включая dev dependencies для сборки)
 RUN npm ci
 
-# Устанавливаем недостающие пакеты для rollup в Alpine Linux
-# npm автоматически выберет подходящий пакет для текущей архитектуры
-RUN npm install @rollup/rollup-linux-x64-musl @rollup/rollup-linux-arm64-musl --no-save
-
 # Копируем исходный код
 COPY . .
 
@@ -21,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # Этап продакшена - только статические файлы
-FROM alpine:latest AS production
+FROM nginx:alpine AS production
 
 # Устанавливаем необходимые инструменты
 RUN apk add --no-cache bash
