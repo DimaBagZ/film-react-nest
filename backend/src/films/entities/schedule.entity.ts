@@ -25,8 +25,8 @@ export class ScheduleEntity {
   @Column({ type: 'int' })
   price: number;
 
-  @Column({ type: 'varchar', array: true, default: [] })
-  taken: string[];
+  @Column({ type: 'text', default: '[]' })
+  taken: string;
 
   @ManyToOne(() => FilmEntity, (f) => f.schedule, { onDelete: 'CASCADE' })
   film: FilmEntity;

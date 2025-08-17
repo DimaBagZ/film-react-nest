@@ -1,0 +1,106 @@
+# Docker Compose configuration for Film! project - PRODUCTION
+
+services:
+  # База данных PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: film_postgres_prod
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/test/prac.init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./backend/test/prac.films.sql:/docker-entrypoint-initdb.d/02-films.sql
+      - ./backend/test/prac.schedules.sql:/docker-entrypoint-initdb.d/03-schedules.sql
+    networks:
+      - film_network
+    restart: unless-stopped
+    # Убираем порт для продакшена - доступ только внутри сети
+
+  # pgAdmin для управления базой данных (только для администрирования)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: film_pgadmin_prod
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "127.0.0.1:8080:80" # Только локальный доступ
+    networks:
+      - film_network
+    restart: unless-stopped
+    depends_on:
+      - postgres
+
+  # Бэкенд приложения
+  backend:
+    image: ghcr.io/${GITHUB_REPOSITORY}/backend:latest
+    container_name: film_backend_prod
+    environment:
+      - DATABASE_DRIVER=postgres
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_USERNAME=${DATABASE_USERNAME}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - PORT=3000
+      - NODE_ENV=production
+      - USE_IN_MEMORY_REPOSITORY=false
+      - LOGGER_TYPE=${LOGGER_TYPE}
+    volumes:
+      - ./backend/public:/app/public
+    networks:
+      - film_network
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    # Убираем порт - доступ только через nginx
+
+  # Фронтенд приложения (только для сборки статических файлов)
+  frontend:
+    image: ghcr.io/${GITHUB_REPOSITORY}/frontend:latest
+    container_name: film_frontend_prod
+    volumes:
+      - frontend_static:/app/dist
+    networks:
+      - film_network
+    restart: unless-stopped
+    depends_on:
+      - backend
+    command: ["sh", "-c", "cp -r /usr/share/nginx/html/* /app/dist/ && tail -f /dev/null"]
+
+  # Nginx сервер (отдельный контейнер)
+  server:
+    image: ghcr.io/${GITHUB_REPOSITORY}/server:latest
+    container_name: film_server_prod
+    ports:
+      - "80:80"
+      - "443:443" # Для HTTPS
+    volumes:
+      - frontend_static:/usr/share/nginx/html:ro
+      - ./ssl:/etc/nginx/ssl:ro # SSL сертификаты
+      - ./server/logs:/var/log/nginx # Логи nginx
+      - ./server/cache:/var/cache/nginx # Кэш nginx
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+    networks:
+      - film_network
+
+volumes:
+  postgres_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+  frontend_static:
+    driver: local
+
+networks:
+  film_network:
+    driver: bridge

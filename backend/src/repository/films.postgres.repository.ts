@@ -40,7 +40,9 @@ export class FilmsPostgresRepository implements IFilmsRepository {
     takenSeats: string[],
   ): Promise<boolean> {
     const repo = this.dataSource.getRepository(ScheduleEntity);
-    const result = await repo.update({ id: sessionId }, { taken: takenSeats });
+    // Правильно сериализуем массив в JSON строку
+    const takenJson = JSON.stringify(takenSeats);
+    const result = await repo.update({ id: sessionId }, { taken: takenJson });
     return result.affected !== undefined && result.affected > 0;
   }
 
@@ -63,6 +65,6 @@ export class FilmsPostgresRepository implements IFilmsRepository {
     rows: e.rows,
     seats: e.seats,
     price: e.price,
-    taken: e.taken ?? [],
+    taken: e.taken ? JSON.parse(e.taken) : [],
   });
 }
