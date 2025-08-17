@@ -24,7 +24,7 @@ export class OrderService {
       );
 
       // Проверяем все билеты в заказе
-      for (const [sessionKey, tickets] of Object.entries(ticketsBySession)) {
+      for (const [, tickets] of Object.entries(ticketsBySession)) {
         await this.validateOrderItems(tickets);
       }
 
