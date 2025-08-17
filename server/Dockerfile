@@ -10,8 +10,8 @@ RUN mkdir -p /var/log/nginx /var/cache/nginx
 # Копируем конфигурацию nginx
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Статические файлы будут подключены через volume в docker-compose
 # Создаем директорию для статических файлов
+# Статические файлы будут подключены через volume в docker-compose
 RUN mkdir -p /usr/share/nginx/html
 
 # Пользователь nginx уже существует в базовом образе
