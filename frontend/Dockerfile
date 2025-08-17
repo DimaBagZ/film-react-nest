@@ -10,6 +10,9 @@ COPY package*.json ./
 # Устанавливаем зависимости (включая dev dependencies для сборки)
 RUN npm ci
 
+# Устанавливаем недостающий пакет для rollup в обычном Node.js образе
+RUN npm install @rollup/rollup-linux-x64-gnu --no-save
+
 # Копируем исходный код
 COPY . .
 
