@@ -39,7 +39,7 @@ services:
 
   # Бэкенд приложения
   backend:
-    image: ghcr.io/${GITHUB_REPOSITORY}/backend:latest
+    image: ghcr.io/${GITHUB_REPOSITORY}/backend:${IMAGE_TAG:-latest}
     container_name: film_backend_prod
     environment:
       - DATABASE_DRIVER=postgres
@@ -63,7 +63,7 @@ services:
 
   # Фронтенд приложения (только для сборки статических файлов)
   frontend:
-    image: ghcr.io/${GITHUB_REPOSITORY}/frontend:latest
+    image: ghcr.io/${GITHUB_REPOSITORY}/frontend:${IMAGE_TAG:-latest}
     container_name: film_frontend_prod
     volumes:
       - frontend_static:/app/dist
@@ -76,7 +76,7 @@ services:
 
   # Nginx сервер (отдельный контейнер)
   server:
-    image: ghcr.io/${GITHUB_REPOSITORY}/server:latest
+    image: ghcr.io/${GITHUB_REPOSITORY}/server:${IMAGE_TAG:-latest}
     container_name: film_server_prod
     ports:
       - "80:80"
