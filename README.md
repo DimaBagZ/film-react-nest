@@ -6,11 +6,10 @@
 
 **Ссылка на приложение:** [https://film-by-bagz.nomorepartiessbs.ru](https://film-by-bagz.nomorepartiessbs.ru)
 
-**API:** [https://api.film-by-bagz.nomorepartiessbs.ru](https://api.film-by-bagz.nomorepartiessbs.ru)
 
 **Доступ к pgAdmin:**
 ```bash
-URL: http://ваш-адресс:8080
+URL: http://ваш-адресс:8080 / (http://158.160.154.24:8080) - панель от проекта
 Данные для входа:
 Email: admin@ваш-домен.nomorepartiessbs.ru
 Пароль: ваш пароль
