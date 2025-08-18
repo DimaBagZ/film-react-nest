@@ -8,6 +8,32 @@
 
 **API:** [https://api.film-by-bagz.nomorepartiessbs.ru](https://api.film-by-bagz.nomorepartiessbs.ru)
 
+**Доступ к pgAdmin:**
+```bash
+URL: http://ваш-адресс:8080
+Данные для входа:
+Email: admin@ваш-домен.nomorepartiessbs.ru
+Пароль: ваш пароль
+Для подключения к базе данных PostgreSQL:
+```
+**Войдите в pgAdmin**
+Добавьте новый сервер (правый клик на "Servers" → "Register" → "Server...")
+На вкладке "General":
+```bash
+Name: Film Database
+На вкладке "Connection":
+Host name/address: film_postgres_prod (имя контейнера PostgreSQL)
+Port: 5432
+Maintenance database: film
+Username: postgres
+Password: postgres
+```
+**Альтернативный способ через SSH туннель (если порт 8080 заблокирован):**
+```bash
+ssh -i ~/.ssh/ssh-key-ВАШ-КЕЙ -L 8080:localhost:8080 ваш-юзер@1**.1**.1**.**
+```
+Затем откройте http://localhost:8080 в браузере.
+
 ### 🚀 Быстрый деплой
 
 Для автоматического деплоя на удаленный сервер:

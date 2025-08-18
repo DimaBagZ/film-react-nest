@@ -28,7 +28,7 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     ports:
-      - "127.0.0.1:8080:80" # Только локальный доступ
+      - "8080:80" # Доступ через порт 8080
     networks:
       - film_network
     restart: unless-stopped
@@ -75,9 +75,6 @@ services:
   # Nginx сервер (отдельный контейнер)
   server:
     image: ghcr.io/${GITHUB_REPOSITORY}/server:${IMAGE_TAG:-latest}
-    build:
-      context: ./server
-      dockerfile: Dockerfile.prod
     container_name: film_server_prod
     environment:
       - DOMAIN=${DOMAIN}
