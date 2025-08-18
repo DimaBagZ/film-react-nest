@@ -1,12 +1,5 @@
--- Полная инициализация базы данных для проекта Film! (UTF-8)
--- Удаляем таблицы если они существуют и создаем заново
-
--- Установка кодировки для сессии
+-- Настройка кодировки UTF-8
 SET client_encoding = 'UTF8';
-
--- Удаление таблиц (если существуют)
-DROP TABLE IF EXISTS schedules CASCADE;
-DROP TABLE IF EXISTS films CASCADE;
 
 -- Создание расширения для UUID
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -27,13 +20,13 @@ CREATE TABLE films (
 -- Создание таблицы сеансов
 CREATE TABLE schedules (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    daytime VARCHAR NOT NULL,
+    daytime TIMESTAMP NOT NULL,
     hall INTEGER NOT NULL,
     rows INTEGER NOT NULL,
     seats INTEGER NOT NULL,
-    price DOUBLE PRECISION NOT NULL,
-    taken TEXT NOT NULL,
-    "filmId" UUID REFERENCES films(id)
+    price DECIMAL(10,2) NOT NULL,
+    taken TEXT DEFAULT '[]',
+    "filmId" UUID REFERENCES films(id) ON DELETE CASCADE
 );
 
 -- Вставка тестовых фильмов (UTF-8)

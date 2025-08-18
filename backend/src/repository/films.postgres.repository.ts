@@ -28,7 +28,7 @@ export class FilmsPostgresRepository implements IFilmsRepository {
   async getFilmSchedule(id: string): Promise<SessionDto[]> {
     const repo = this.dataSource.getRepository(ScheduleEntity);
     const sessions = await repo.find({
-      where: { film: { id } as any },
+      where: { filmId: id },
       order: { daytime: 'ASC' },
     });
     return sessions.map(this.mapScheduleEntityToDto);
@@ -40,7 +40,9 @@ export class FilmsPostgresRepository implements IFilmsRepository {
     takenSeats: string[],
   ): Promise<boolean> {
     const repo = this.dataSource.getRepository(ScheduleEntity);
-    const result = await repo.update({ id: sessionId }, { taken: takenSeats });
+    // Правильно сериализуем массив в JSON строку
+    const takenJson = JSON.stringify(takenSeats);
+    const result = await repo.update({ id: sessionId }, { taken: takenJson });
     return result.affected !== undefined && result.affected > 0;
   }
 
@@ -63,6 +65,32 @@ export class FilmsPostgresRepository implements IFilmsRepository {
     rows: e.rows,
     seats: e.seats,
     price: e.price,
-    taken: e.taken ?? [],
+    taken: this.parseTakenSeats(e.taken),
   });
+
+  private parseTakenSeats(taken: string | null): string[] {
+    if (!taken || taken === '' || taken === '[]') {
+      return [];
+    }
+
+    // Если это JSON массив, парсим его
+    if (taken.startsWith('[') && taken.endsWith(']')) {
+      try {
+        return JSON.parse(taken);
+      } catch {
+        return [];
+      }
+    }
+
+    // Если это строка с разделителями (например, "3:3,1:4,1:5")
+    if (taken.includes(',')) {
+      return taken
+        .split(',')
+        .map((seat) => seat.trim())
+        .filter((seat) => seat !== '');
+    }
+
+    // Если это одиночное место
+    return taken.trim() ? [taken.trim()] : [];
+  }
 }
