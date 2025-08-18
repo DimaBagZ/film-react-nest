@@ -11,9 +11,7 @@ services:
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backend/test/prac.init.sql:/docker-entrypoint-initdb.d/01-init.sql
-      - ./backend/test/prac.films.sql:/docker-entrypoint-initdb.d/02-films.sql
-      - ./backend/test/prac.schedules.sql:/docker-entrypoint-initdb.d/03-schedules.sql
+      - ./backend/test/setup_database_utf8.sql:/docker-entrypoint-initdb.d/01-setup.sql
     ports:
       - "5432:5432"
     networks:

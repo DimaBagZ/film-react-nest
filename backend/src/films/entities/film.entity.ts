@@ -1,9 +1,7 @@
-import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
-import { ScheduleEntity } from './schedule.entity';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 /**
  * Сущность фильма для PostgreSQL (TypeORM)
- * Связь: один фильм → много сеансов (ScheduleEntity)
  */
 @Entity('films')
 export class FilmEntity {
@@ -33,7 +31,4 @@ export class FilmEntity {
 
   @Column({ type: 'varchar' })
   cover: string;
-
-  @OneToMany(() => ScheduleEntity, (s) => s.film, { cascade: true })
-  schedule: ScheduleEntity[];
 }

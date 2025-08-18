@@ -28,7 +28,7 @@ export class FilmsPostgresRepository implements IFilmsRepository {
   async getFilmSchedule(id: string): Promise<SessionDto[]> {
     const repo = this.dataSource.getRepository(ScheduleEntity);
     const sessions = await repo.find({
-      where: { film: { id } as any },
+      where: { filmId: id },
       order: { daytime: 'ASC' },
     });
     return sessions.map(this.mapScheduleEntityToDto);

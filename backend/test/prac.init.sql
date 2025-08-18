@@ -16,9 +16,9 @@ CREATE TABLE IF NOT EXISTS films (
 -- Создание таблицы schedules
 CREATE TABLE IF NOT EXISTS schedules (
     id UUID PRIMARY KEY,
-    film_id UUID NOT NULL REFERENCES films(id) ON DELETE CASCADE,
+    "filmId" UUID NOT NULL REFERENCES films(id) ON DELETE CASCADE,
     daytime TIMESTAMP NOT NULL,
-    hall VARCHAR(50) NOT NULL,
+    hall INTEGER NOT NULL,
     rows INTEGER NOT NULL,
     seats INTEGER NOT NULL,
     price DECIMAL(10,2) NOT NULL,
@@ -26,5 +26,5 @@ CREATE TABLE IF NOT EXISTS schedules (
 );
 
 -- Создание индексов для оптимизации
-CREATE INDEX IF NOT EXISTS idx_schedules_film_id ON schedules(film_id);
+CREATE INDEX IF NOT EXISTS idx_schedules_film_id ON schedules("filmId");
 CREATE INDEX IF NOT EXISTS idx_schedules_daytime ON schedules(daytime); 
