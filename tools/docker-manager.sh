@@ -207,6 +207,11 @@ reset_project() {
         # Очистка кэша в backend
         cd backend
         rm -rf dist/ node_modules/ package-lock.json
+        
+        # Восстанавливаем package-lock.json
+        log_info "Восстановление package-lock.json..."
+        npm install
+        
         cd ..
         
         # Пересборка

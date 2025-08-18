@@ -65,6 +65,32 @@ export class FilmsPostgresRepository implements IFilmsRepository {
     rows: e.rows,
     seats: e.seats,
     price: e.price,
-    taken: e.taken ? JSON.parse(e.taken) : [],
+    taken: this.parseTakenSeats(e.taken),
   });
+
+  private parseTakenSeats(taken: string | null): string[] {
+    if (!taken || taken === '' || taken === '[]') {
+      return [];
+    }
+
+    // Если это JSON массив, парсим его
+    if (taken.startsWith('[') && taken.endsWith(']')) {
+      try {
+        return JSON.parse(taken);
+      } catch {
+        return [];
+      }
+    }
+
+    // Если это строка с разделителями (например, "3:3,1:4,1:5")
+    if (taken.includes(',')) {
+      return taken
+        .split(',')
+        .map((seat) => seat.trim())
+        .filter((seat) => seat !== '');
+    }
+
+    // Если это одиночное место
+    return taken.trim() ? [taken.trim()] : [];
+  }
 }
