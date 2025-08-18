@@ -1,0 +1,51 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT }}
+          script: |
+            # Переходим в директорию проекта
+            cd /opt/film-react-nest
+
+            # Останавливаем текущие контейнеры
+            docker compose -f docker-compose.prod.yml down
+
+            # Удаляем старые образы
+            docker image prune -f
+
+            # Пуллим новые образы
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            docker pull ghcr.io/${{ env.IMAGE_NAME }}/backend:latest
+            docker pull ghcr.io/${{ env.IMAGE_NAME }}/frontend:latest
+            docker pull ghcr.io/${{ env.IMAGE_NAME }}/server:latest
+
+            # Запускаем новые контейнеры
+            docker compose -f docker-compose.prod.yml up -d
+
+            # Проверяем статус
+            docker compose -f docker-compose.prod.yml ps
+
+            # Очищаем неиспользуемые образы
+            docker image prune -f

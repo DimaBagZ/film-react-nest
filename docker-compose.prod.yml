@@ -75,7 +75,14 @@ services:
   # Nginx сервер (отдельный контейнер)
   server:
     image: ghcr.io/${GITHUB_REPOSITORY}/server:${IMAGE_TAG:-latest}
+    build:
+      context: ./server
+      dockerfile: Dockerfile.prod
     container_name: film_server_prod
+    environment:
+      - DOMAIN=${DOMAIN}
+      - SSL_CERT_PATH=${SSL_CERT_PATH:-/etc/nginx/ssl/cert.pem}
+      - SSL_KEY_PATH=${SSL_KEY_PATH:-/etc/nginx/ssl/key.pem}
     ports:
       - "80:80"
       - "443:443" # Для HTTPS
