@@ -61,8 +61,6 @@ ssh -i ~/.ssh/ssh-key-ВАШ-КЕЙ -L 8080:localhost:8080 ваш-юзер@1**.1
    chmod +x tools/setup-ssl.sh
    ./tools/setup-ssl.sh your-domain.nomoreparties.site
    ```
-
-**Подробные инструкции:** [DEPLOYMENT.md](DEPLOYMENT.md)
 **Инструменты и утилиты:** [tools/README.md](tools/README.md)
 
 ## 📋 Описание проекта
