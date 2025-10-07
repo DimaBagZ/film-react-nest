@@ -3,10 +3,13 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { LoggerFactory } from './logger/logger.factory';
 import 'dotenv/config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true, // Буферизуем логи до подключения логгера
+  });
 
   // Настройка глобального префикса для API
   app.setGlobalPrefix('api/afisha', {
@@ -15,6 +18,10 @@ async function bootstrap() {
 
   // Включение CORS
   app.enableCors();
+
+  // Подключение логгера
+  const logger = LoggerFactory.createLogger();
+  app.useLogger(logger);
 
   // Глобальная валидация входящих данных (временно смягчена для отладки)
   app.useGlobalPipes(

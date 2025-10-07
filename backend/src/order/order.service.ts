@@ -18,9 +18,14 @@ export class OrderService {
         throw new BadRequestException('Email и телефон обязательны');
       }
 
-      // Проверяем каждый билет в заказе
-      for (const ticket of createOrderDto.tickets) {
-        await this.validateOrderItem(ticket);
+      // Группируем билеты по сеансам для оптимизации
+      const ticketsBySession = this.groupTicketsBySession(
+        createOrderDto.tickets,
+      );
+
+      // Проверяем все билеты в заказе
+      for (const [, tickets] of Object.entries(ticketsBySession)) {
+        await this.validateOrderItems(tickets);
       }
 
       // Бронируем места для каждого билета
@@ -64,37 +69,81 @@ export class OrderService {
   }
 
   /**
-   * Валидация элемента заказа
+   * Группировка билетов по сеансам
+   */
+  private groupTicketsBySession(
+    tickets: OrderItemDto[],
+  ): Record<string, OrderItemDto[]> {
+    const grouped: Record<string, OrderItemDto[]> = {};
+
+    for (const ticket of tickets) {
+      const sessionKey = `${ticket.film}:${ticket.session}`;
+      if (!grouped[sessionKey]) {
+        grouped[sessionKey] = [];
+      }
+      grouped[sessionKey].push(ticket);
+    }
+
+    return grouped;
+  }
+
+  /**
+   * Валидация группы элементов заказа для одного сеанса
+   */
+  private async validateOrderItems(items: OrderItemDto[]): Promise<void> {
+    if (items.length === 0) return;
+
+    const firstItem = items[0];
+    const schedule = await this.filmsService.getFilmSchedule(firstItem.film);
+    const session = schedule.find((s) => s.id === firstItem.session);
+
+    if (!session) {
+      throw new BadRequestException(`Сеанс ${firstItem.session} не найден`);
+    }
+
+    // Создаем временный набор занятых мест для проверки дубликатов в заказе
+    const tempTakenSeats = new Set(session.taken);
+    const seatsInOrder = new Set<string>();
+
+    for (const item of items) {
+      // Проверяем границы ряда и места
+      if (item.row < 1 || item.row > session.rows) {
+        throw new BadRequestException(
+          `Ряд ${item.row} не существует. Доступно рядов: ${session.rows}`,
+        );
+      }
+      if (item.seat < 1 || item.seat > session.seats) {
+        throw new BadRequestException(
+          `Место ${item.seat} не существует. Доступно мест в ряду: ${session.seats}`,
+        );
+      }
+
+      const seatKey = `${item.row}:${item.seat}`;
+
+      // Проверяем, не занято ли место в базе данных
+      if (tempTakenSeats.has(seatKey)) {
+        throw new BadRequestException(
+          `Место ${item.row} ряд, ${item.seat} место уже занято. Выберите другое место.`,
+        );
+      }
+
+      // Проверяем, не выбрано ли это место дважды в текущем заказе
+      if (seatsInOrder.has(seatKey)) {
+        throw new BadRequestException(
+          `Место ${item.row} ряд, ${item.seat} место выбрано дважды в заказе.`,
+        );
+      }
+
+      seatsInOrder.add(seatKey);
+      tempTakenSeats.add(seatKey); // Добавляем к временному набору для проверки следующих мест
+    }
+  }
+
+  /**
+   * Валидация элемента заказа (для обратной совместимости)
    */
   private async validateOrderItem(item: OrderItemDto): Promise<void> {
-    // Получаем расписание фильма
-    const schedule = await this.filmsService.getFilmSchedule(item.film);
-
-    // Находим нужный сеанс
-    const session = schedule.find((s) => s.id === item.session);
-    if (!session) {
-      throw new BadRequestException(`Сеанс ${item.session} не найден`);
-    }
-
-    // Проверяем границы ряда и места
-    if (item.row < 1 || item.row > session.rows) {
-      throw new BadRequestException(
-        `Ряд ${item.row} не существует. Доступно рядов: ${session.rows}`,
-      );
-    }
-    if (item.seat < 1 || item.seat > session.seats) {
-      throw new BadRequestException(
-        `Место ${item.seat} не существует. Доступно мест в ряду: ${session.seats}`,
-      );
-    }
-
-    // Проверяем, не занято ли место
-    const seatKey = `${item.row}:${item.seat}`;
-    if (session.taken.includes(seatKey)) {
-      throw new BadRequestException(
-        `Место ${item.row} ряд, ${item.seat} место уже занято. Выберите другое место.`,
-      );
-    }
+    await this.validateOrderItems([item]);
   }
 
   /**
@@ -117,7 +166,7 @@ export class OrderService {
       );
     }
 
-    // Добавляем новое место к занятым
+    // Добавляем новое место к существующим занятым местам
     const updatedTakenSeats = [...session.taken, seatKey];
 
     // Обновляем занятые места в базе данных

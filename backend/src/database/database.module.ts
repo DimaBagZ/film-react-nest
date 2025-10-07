@@ -23,7 +23,8 @@ import { ScheduleEntity } from '../films/entities/schedule.entity';
               password: config.get('DATABASE_PASSWORD', 'postgres'),
               database: config.get('DATABASE_NAME', 'film'),
               entities: [FilmEntity, ScheduleEntity],
-              synchronize: false, // для разработки; на проде выключить
+              synchronize: false, // отключаем синхронизацию
+              logging: true, // включаем логирование SQL
             }),
           }),
         ]
