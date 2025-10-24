@@ -7,7 +7,7 @@
 **Ссылка на приложение:** [https://film-by-bagz.nomorepartiessbs.ru](https://film-by-bagz.nomorepartiessbs.ru)
 
 **Макет проекта:** 
-[![Figma](https://img.shields.io/badge/Figma%20-brightgreen)]([https://dimabagz.github.io/blog-customizer/](https://www.figma.com/design/82PqcEWXowbRAP7HDQfKH2/8-спринт.-Yandex--Film.-Film.-Film--?node-id=244-5&p=f&t=Qb2SIlmopOe6gxR7-0))
+[![Figma](https://img.shields.io/badge/Figma%20-brightgreen)](https://www.figma.com/design/82PqcEWXowbRAP7HDQfKH2/8-спринт.-Yandex--Film.-Film.-Film--?node-id=244-5&p=f&t=Qb2SIlmopOe6gxR7-0)
 
 
 
